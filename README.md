@@ -35,7 +35,7 @@ that value is returned.
 
 If it throws an error, the error is caught and passed to zero or more "handlers."  
 
-Handlers are invoked in order and are responsible for all retry behaviors.  The
+Handlers are invoked in order and are responsible for all retry behaviors.  They
 can:
 
 - throw the error to abort retrying
