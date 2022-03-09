@@ -1,11 +1,16 @@
 import {retry} from '@cspotcode/retries';
 import {db} from './database';
 import {cleanupCache} from './cache';
+import { matches } from 'lodash';
 
 // Create an error matcher for a known error we should retry.
 // In this example, match an error from our database that indicates it is
 // still scaling up capacity.  This means subsequent requests will soon succeed.
 // Non-matching errors will be thrown and abort any retrying.
+// 
+// NOTE: matching objects like this require lodash be installed as a peer dependency.
+// Instead of matching objects, you can pass a function which must return true if the
+// error matches.
 const onDatabaseScalingError = retry.ifErrorMatches({
     code: 'DB_INSUFFICIENT_SCALE'
 });

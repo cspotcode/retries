@@ -1,4 +1,11 @@
-import { isMatch } from "lodash";
+import type * as _lodash from "lodash";
+let lodash: typeof _lodash | undefined = undefined;
+const _ = {
+    get isMatch(): typeof _lodash.isMatch {
+        lodash ??= require('lodash') as typeof _lodash;
+        return lodash!.isMatch;
+    }
+}
 
 export type RetryAction<T> = () => PromiseLike<T>;
 // Each non-action callback receives:
@@ -85,12 +92,18 @@ export namespace retry {
      * Create a handler that only retries for errors matching one of the matchers.
      * If a matcher is a function, it must return true or false to indicate matching or not-matching.
      * Otherwise, we use lodash `_.isMatch(error, matcher)` to check the error against the matcher.
+     * 
+     * Multiple matchers can be passed.  The error only needs to match a single matcher to be considered
+     * retry-able.
+     * 
+     * NOTE: lodash is a peerDependency; you must install this yourself if you want to use
+     * object-matching.
      */
     export function ifErrorMatches(...matchers: Array<object | ((error: Thrown) => boolean)>) {
         return ifErrorMatchesHandler;
         function ifErrorMatchesHandler(error: Thrown) {
             if(!matchers.some(obj => {
-                return typeof obj === 'function' ? obj(error) : isMatch(error, obj);
+                return typeof obj === 'function' ? obj(error) : _.isMatch(error, obj);
             })) throw error;;
         }
     }
@@ -190,3 +203,5 @@ function sleep(milliseconds: number) {
         setTimeout(res, milliseconds);
     });
 }
+
+export const {RETRY, create, deadlineMs, deadlineSec, delayMs, delaySec, explicitly, exponentialBackoff, ifErrorMatches, ifTrue, tries} = retry;

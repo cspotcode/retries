@@ -8,10 +8,26 @@ See [examples.ts](./examples/examples.ts) for usage.
 
 ## Quick start
 
+By default, retry will try forever with zero delay between attempts.  If the callback throws/rejects, that is considered a failure, to be retried.
+
+```
+// Retry forever until a connection is established
+const socket = await retry(async () => {
+  return await websocket.connect('my-server.domain');
+});
+```
+
+The real power of `retry` is its ability to compose reusable retry behaviors via "handlers."
+
+In its simplest form, a "handler" is a function that is invoked after a failed
+attempt and before the next attempt.  Behaviors can add delay between attempts,
+abort the retry loop, log diagnostic information, or anything else you might
+want to do between attempts.
+
 Two workflows are supported:
 
 - execute a single action with retry handlers declared inline
-- create a reusable retry behavior, then reuse it for multiple actions
+- create a retry behavior composed of multiple handlers, then reuse it for multiple actions
 
 ### Single action
 
@@ -24,27 +40,31 @@ const result = await retry(actionFunction, handlerA, handlerB);
 
 ```typescript twoslash
 import {retry} from '@cspotcode/retries';
+// Max of 5 retries, 5s pause between each
 const myRetryBehavior = retry.create(retry.tries(5), retry.delaySec(5));
+// Use the behavior to attempt a search query.
 const resultA = await myRetryBehavior(() => api.query(searchParams));
 ```
 
 ## Concepts
 
-This library executes an async operation, an "action."  If it returns a value,
-that value is returned.
+`retry()` executes an async operation, an "action."
 
-If it throws an error, the error is caught and passed to zero or more "handlers."  
+If it returns a value, that value is returned and no more retries are attempted. If it throws an error, the error
+is caught and passed to zero or more "handlers."  Then the action is retried.
 
-Handlers are invoked in order and are responsible for all retry behaviors.  They
-can:
+Handlers are invoked in order and are responsible for customizing retry behaviors.
 
-- throw the error to abort retrying
-  - for example, when you exceed a maximum number of retries
-- delay between attempts
+Handlers are invoked in order and are responsible for all retry behaviors.
+
+For example, they can:
+
+- rethrow the error to abort retrying
+  - can be used to stop when you exceed a maximum number of retries
+  - can be used to abort on unrecognized errors
+- add a delay between attempts
   - they are async functions, so they can delay before resolving
-- filter the error, throwing if it is unrecognized
-  - if a handler re-throws the error or throws a new error, retrying aborts
-    with that error
+  - our `exponentialBackoff` handler implements exponential delay w/ jitter
 - log status information about retry attempts
   - for example, <code>console.log(`Attempt ${state.attempts} failed, retrying...`)</code>
 
