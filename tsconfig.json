@@ -1,0 +1,10 @@
+{
+    "extends": "@tsconfig/node16/tsconfig.json",
+    "compilerOptions": {
+        "types": ["node"],
+        "baseUrl": ".",
+        "paths": {
+            "@cspotcode/retries": ["./retries.js"]
+        }
+    }
+}
