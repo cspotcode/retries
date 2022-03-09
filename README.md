@@ -55,8 +55,6 @@ is caught and passed to zero or more "handlers."  Then the action is retried.
 
 Handlers are invoked in order and are responsible for customizing retry behaviors.
 
-Handlers are invoked in order and are responsible for all retry behaviors.
-
 For example, they can:
 
 - rethrow the error to abort retrying
