@@ -1,6 +1,28 @@
 {
     "name": "@cspotcode/retries",
     "version": "0.0.1",
+    "main": "./dist/retries",
+    "author": {
+        "name": "Andrew Bradley",
+        "email": "cspotcode@gmail.com"
+    },
+    "bugs": {
+        "url": "https://github.com/cspotcode/retries"
+    },
+    "homepage": "https://github.com/cspotcode/retries",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/cspotcode/retries.git"
+    },
+    "files": [
+        "/dist",
+        "/src",
+        "!/dist/*.spec.*",
+        "!/src/*.spec.*"
+    ],
+    "scripts": {
+        "prepare": "tsc --build"
+    },
     "devDependencies": {
         "@tsconfig/node16": "^1.0.2",
         "@types/lodash": "^4.14.179",

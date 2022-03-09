@@ -1,10 +1,17 @@
 {
     "extends": "@tsconfig/node16/tsconfig.json",
     "compilerOptions": {
+        "incremental": true,
         "types": ["node"],
         "baseUrl": ".",
+        "rootDir": "src",
+        "outDir": "dist",
+        "sourceMap": true,
+        "declaration": true,
+        "declarationMap": true,
         "paths": {
-            "@cspotcode/retries": ["./retries.js"]
+            "@cspotcode/retries": ["./dist/retries.js"]
         }
-    }
+    },
+    "include": ["src"]
 }

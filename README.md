@@ -1,16 +1,50 @@
-Utility for retrying an action repeatedly until it succeeds.
+# @cspotcode/retries
 
-See [./examples](./examples) for usage.
+Composable, reusable retry behaviors. Retry an action repeatedly until it
+succeeds. Or describe your intended retry behavior once, then reuse that
+behavior across multiple operations.
 
-Pass an async action function and zero or more async error handlers.
+See [examples.ts](./examples/examples.ts) for usage.
 
-If the action function throws an error, the error will be passed to the error
-handlers one at a time.  Each can choose to:
+## Quick start
+
+Two workflows are supported:
+
+- execute a single action with retry handlers declared inline
+- create a reusable retry behavior, then reuse it for multiple actions
+
+### Single action
+
+```typescript twoslash
+const result = await retry(actionFunction, handlerA, handlerB);
+```
+
+### Compose a reusable behavior
+
+```typescript twoslash
+const myRetryBehavior = retry.create(retry.tries(5), retry.delaySec(5));
+const resultA = await myRetryBehavior(() => api.query(searchParams));
+```
+
+## Concepts
+
+This library executes an async operation, an "action."  If it returns a value,
+that value is returned.
+
+If it throws an error, the error is caught and passed to zero or more "handlers."  
+
+Handlers are invoked in order and are responsible for all retry behaviors.  The
+can:
 
 - throw the error to abort retrying
+  - for example, when you exceed a maximum number of retries
 - delay between attempts
+  - they are async functions, so they can delay before resolving
 - filter the error, throwing if it is unrecognized
-- log information about the retry attempts
+  - if a handler re-throws the error or throws a new error, retrying aborts
+    with that error
+- log status information about retry attempts
+  - for example, <code>console.log(`Attempt ${state.attempts} failed, retrying...`)</code>
 
 A collection of error handlers are included for common situations:
 
