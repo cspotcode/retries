@@ -16,12 +16,14 @@ Two workflows are supported:
 ### Single action
 
 ```typescript twoslash
+import {retry} from '@cspotcode/retries';
 const result = await retry(actionFunction, handlerA, handlerB);
 ```
 
 ### Compose a reusable behavior
 
 ```typescript twoslash
+import {retry} from '@cspotcode/retries';
 const myRetryBehavior = retry.create(retry.tries(5), retry.delaySec(5));
 const resultA = await myRetryBehavior(() => api.query(searchParams));
 ```
