@@ -15,24 +15,24 @@ export interface RetryState {
     startTime: Date;
     /** Most recently thrown error.  Can be reassigned by handlers to replace or wrap the error. */
     error: Thrown;
-    /** Array of all errors from all failed attempts.  Can be used, for example, to throw an
-     * `AggregateError` when maximum retries have failed. */
-    errors: Thrown[];
+    // /** Array of all errors from all failed attempts.  Can be used, for example, to throw an
+    //  * `AggregateError` when maximum retries have failed. */
+    // errors: Thrown[];
 }
 export type Thrown = any;
 
 export async function retry<T>(action: () => PromiseLike<T>, ...errorHandlers: Array<RetryHandler>): Promise<T> {
     const startTime = new Date();
-    const errors = [];
+    // const errors = [];
     for (let attempts = 1; ; attempts++) {
         try {
             return await action();
         } catch(error) {
-            errors.push(error);
-            const state: RetryState = {error, attempts, startTime, errors};
+            // errors.push(error);
+            const state: RetryState = {error, attempts, startTime, /*errors*/};
             for(const onErrorFn of errorHandlers) {
                 await onErrorFn(state.error, state);
-                errors[errors.length - 1] = state.error;
+                // errors[errors.length - 1] = state.error;
             }
         }
     }
